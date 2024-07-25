@@ -13,10 +13,9 @@ services:
       - POSTGRES_DB=${COMMAND_SERVICE_DB_NAME}
     volumes:
       - ./postgres:/var/lib/postgresql-command/data
-      - - ./z-docker/initCommandDB.sql:/docker-entrypoint-initdb.d/initCommandDB.sql
+      - ./z-docker/initCommandDB.sql:/docker-entrypoint-initdb.d/initCommandDB.sql
 
-    env_file:
-      - .env
+    env_file: ".env"
 
   postgres-query-service:
     image: postgres:latest
@@ -32,5 +31,4 @@ services:
       - ./postgres:/var/lib/postgresql-query/data
       - ./z-docker/initQueryDB.sql:/docker-entrypoint-initdb.d/initQueryDB.sql
 
-    env_file:
-      - .env
+    env_file: ".env"
