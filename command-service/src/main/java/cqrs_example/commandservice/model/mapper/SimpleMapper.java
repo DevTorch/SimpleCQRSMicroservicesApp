@@ -1,6 +1,6 @@
 package cqrs_example.commandservice.model.mapper;
 
-import cqrs_example.commandservice.model.dto.SimpleEntityRequestDTO;
+import cqrs_example.commandservice.model.dto.SimpleEntityResponseDTO;
 import cqrs_example.commandservice.model.entity.SimpleEntity;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
@@ -16,16 +16,16 @@ public interface SimpleMapper {
     @Mapping(target = "id", source = "entity.id")
     @Mapping(target = "fullName", source = "entity.fullName")
     @Mapping(target = "email", source = "entity.email")
-    SimpleEntityRequestDTO toDTO(SimpleEntity entity);
+    SimpleEntityResponseDTO toDTO(SimpleEntity entity);
 
     @InheritInverseConfiguration
     @Mapping(target = "description", ignore = true)
-    SimpleEntity toEntity(SimpleEntityRequestDTO dto);
+    SimpleEntity toEntity(SimpleEntityResponseDTO dto);
 
-    List<SimpleEntityRequestDTO> toDTOs(List<SimpleEntity> entities);
+    List<SimpleEntityResponseDTO> toDTOs(List<SimpleEntity> entities);
 
     @InheritInverseConfiguration
     @Mapping(target = "description", ignore = true)
-    List<SimpleEntity> toEntities(List<SimpleEntityRequestDTO> dtos);
+    List<SimpleEntity> toEntities(List<SimpleEntityResponseDTO> dtos);
 
 }

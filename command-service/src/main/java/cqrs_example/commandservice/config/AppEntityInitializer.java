@@ -1,6 +1,6 @@
 package cqrs_example.commandservice.config;
 
-import cqrs_example.commandservice.model.dto.SimpleEntityRequestDTO;
+import cqrs_example.commandservice.model.dto.SimpleEntityResponseDTO;
 import cqrs_example.commandservice.model.mapper.SimpleMapper;
 import cqrs_example.commandservice.repository.SimpleEntityRepository;
 import jakarta.annotation.PostConstruct;
@@ -16,9 +16,9 @@ public class AppEntityInitializer {
 
     @PostConstruct
     public void init() {
-        var entityRequestDTOOne = new SimpleEntityRequestDTO("User One", "one@email.com");
-        var entityRequestDTOTwo = new SimpleEntityRequestDTO("User Two", "two@email.com");
-        var entityRequestDTOThree = new SimpleEntityRequestDTO("User Three", "three@email.com");
+        var entityRequestDTOOne = new SimpleEntityResponseDTO("User One", "one@email.com");
+        var entityRequestDTOTwo = new SimpleEntityResponseDTO("User Two", "two@email.com");
+        var entityRequestDTOThree = new SimpleEntityResponseDTO("User Three", "three@email.com");
 
 //        repository.save(simpleMapper.toEntity(entityRequestDTOOne));
 //        repository.save(simpleMapper.toEntity(entityRequestDTOTwo));

@@ -1,5 +1,6 @@
 package cqrs_example.commandservice.exception.advice;
 
+import cqrs_example.commandservice.exception.KafkaSenderException;
 import cqrs_example.commandservice.exception.SimpleEntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -21,6 +22,7 @@ public class SimpleControllerExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(error -> {
             errors.put(error.getField(), error.getDefaultMessage());
         });
+
         return errors;
     }
 
@@ -30,6 +32,17 @@ public class SimpleControllerExceptionHandler {
         Map<String, String> errors = new HashMap<>();
         errors.put("errorMessage", e.getMessage());
         errors.put("timestamp", LocalDateTime.now().toString());
+
+        return  errors;
+    }
+
+    @ExceptionHandler(KafkaSenderException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public Map<String, String> handleKafkaSenderException(KafkaSenderException e) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("errorMessage", e.getMessage());
+        errors.put("timestamp", LocalDateTime.now().toString());
+
         return  errors;
     }
 
@@ -39,6 +52,7 @@ public class SimpleControllerExceptionHandler {
         Map<String, String> errors = new HashMap<>();
         errors.put("errorMessage", e.getMessage());
         errors.put("timestamp", LocalDateTime.now().toString());
+
         return  errors;
     }
 

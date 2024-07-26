@@ -1,4 +1,4 @@
 rootProject.name = 'cqrs_example'
-include 'command-service'
-include 'query-service'
-include 'kafka-core'
+include('command-service')
+include('query-service')
+include('kafka-core')

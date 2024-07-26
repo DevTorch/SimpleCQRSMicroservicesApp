@@ -1,6 +1,6 @@
 package cqrs_example.kafkacore.events;
 
-public enum EventCommandTypeEnum {
+public enum EventTypeEnum {
     CREATE,
     UPDATE,
     DELETE
