@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
 
-public record SimpleEntityResponseDTO(
+public record SimpleEntityTransferModelDTO(
 
         @Id
         Long id,
@@ -23,7 +23,7 @@ public record SimpleEntityResponseDTO(
         @Email
         String email) implements Serializable {
 
-        public SimpleEntityResponseDTO(String fullName, String email) {
+        public SimpleEntityTransferModelDTO(String fullName, String email) {
                 this(null, fullName, email);
         }
 }

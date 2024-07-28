@@ -1,24 +1,34 @@
 package cqrs_example.commandservice.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cqrs_example.commandservice.exception.KafkaSenderException;
 import cqrs_example.commandservice.exception.SimpleEntityNotFoundException;
-import cqrs_example.commandservice.model.dto.SimpleEntityResponseDTO;
+import cqrs_example.commandservice.model.dto.SimpleEntityTransferModelDTO;
+import cqrs_example.commandservice.model.entity.SimpleEntity;
 import cqrs_example.commandservice.model.mapper.SimpleEventMapper;
 import cqrs_example.commandservice.model.mapper.SimpleMapper;
-import cqrs_example.commandservice.repository.SimpleEntityRepository;
+import cqrs_example.commandservice.repository.SimpleEntityCommandRepository;
 import cqrs_example.commandservice.service.SimpleEntityService;
 import cqrs_example.kafkacore.constants.CqrsCoreConstants;
 import cqrs_example.kafkacore.events.EventTypeEnum;
+import cqrs_example.kafkacore.events.SimpleEntitySynchronisationEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -27,16 +37,18 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class SimpleEntityServiceImplementation implements SimpleEntityService {
 
-    private final SimpleEntityRepository repository;
+    private final ObjectMapper objectMapper;
+
+    private final SimpleEntityCommandRepository repository;
     private final SimpleMapper simpleMapper;
     private final SimpleEventMapper eventMapper;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     @Transactional
-    public void save(SimpleEntityResponseDTO entityRequestDTO) {
-        var savedEntity = repository.save(simpleMapper.toEntity(entityRequestDTO));
-        var event = eventMapper.entityToEvent(savedEntity);
+    public SimpleEntityTransferModelDTO create(SimpleEntityTransferModelDTO dto) {
+        SimpleEntity savedEntity = repository.save(simpleMapper.toEntity(dto));
+        SimpleEntitySynchronisationEvent event = eventMapper.entityToEvent(savedEntity);
 
         ProducerRecord<String, Object> queryRecord = new ProducerRecord<>(
                 CqrsCoreConstants.CQRS_EVENTS_TOPIC,
@@ -63,16 +75,23 @@ public class SimpleEntityServiceImplementation implements SimpleEntityService {
                     }
                 }
         );
-
+        return simpleMapper.toDTO(savedEntity);
     }
 
     @Override
-    public void delete(Long id) {
-        repository.deleteById(id);
+    @Transactional
+    public SimpleEntityTransferModelDTO delete(Long id) {
+        Optional<SimpleEntity> byId = repository.findById(id);
+        if (byId.isPresent()) {
+            repository.deleteById(id);
+            return simpleMapper.toDTO(byId.get());
+        }
+        log.error("Entity with id {} not found", id);
+        throw new SimpleEntityNotFoundException();
     }
 
     @Override
-    public void update(Long id, SimpleEntityResponseDTO entityRequestDTO) {
+    public void update(Long id, SimpleEntityTransferModelDTO entityRequestDTO) {
         var entity = repository.findById(id).orElseThrow(
                 () -> new SimpleEntityNotFoundException(String.format("Filed to update entity with id: %d", id)));
         entity.setEmail(entityRequestDTO.email());
@@ -81,4 +100,39 @@ public class SimpleEntityServiceImplementation implements SimpleEntityService {
         repository.save(entity);
     }
 
+    @Override
+    @Transactional
+    public SimpleEntityTransferModelDTO patch(Long id, JsonNode patchNode) throws IOException {
+        SimpleEntity simpleEntity = repository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Entity with id `%s` not found".formatted(id)));
+
+        SimpleEntityTransferModelDTO simpleEntityTransferModelDTO = simpleMapper.toDTO(simpleEntity);
+        objectMapper.readerForUpdating(simpleEntityTransferModelDTO).readValue(patchNode);
+        simpleMapper.updateWithNull(simpleEntityTransferModelDTO, simpleEntity);
+
+        SimpleEntity resultSimpleEntity = repository.save(simpleEntity);
+        return simpleMapper.toDTO(resultSimpleEntity);
+    }
+
+    @Override
+    public List<Long> patchMany(List<Long> ids, JsonNode patchNode) throws IOException {
+        Collection<SimpleEntity> simpleEntities = repository.findAllById(ids);
+
+        for (SimpleEntity simpleEntity : simpleEntities) {
+            SimpleEntityTransferModelDTO simpleEntityTransferModelDTO = simpleMapper.toDTO(simpleEntity);
+            objectMapper.readerForUpdating(simpleEntityTransferModelDTO).readValue(patchNode);
+            simpleMapper.updateWithNull(simpleEntityTransferModelDTO, simpleEntity);
+        }
+
+        List<SimpleEntity> resultSimpleEntities = repository.saveAll(simpleEntities);
+        return resultSimpleEntities.stream()
+                .map(SimpleEntity::getId)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public void deleteMany(List<Long> ids) {
+        repository.deleteAllById(ids);
+    }
 }

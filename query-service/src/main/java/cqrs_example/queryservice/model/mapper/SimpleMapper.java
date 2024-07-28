@@ -1,7 +1,7 @@
-package cqrs_example.commandservice.model.mapper;
+package cqrs_example.queryservice.model.mapper;
 
-import cqrs_example.commandservice.model.dto.SimpleEntityTransferModelDTO;
-import cqrs_example.commandservice.model.entity.SimpleEntity;
+import cqrs_example.queryservice.model.dto.SimpleEntityTransferModelDTO;
+import cqrs_example.queryservice.model.entity.SimpleEntity;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
