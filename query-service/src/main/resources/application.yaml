@@ -33,4 +33,12 @@ spring:
   kafka:
     consumer:
       bootstrap-servers: localhost:9092,localhost:9094,localhost:9096
+      auto-offset-reset: earliest
+      heartbeat-interval: 5000
+      properties:
+        session.timeout.ms: 30000
+        enable.auto.commit: false
+        auto.create.topics.enable: false
+
+
 

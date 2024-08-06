@@ -7,6 +7,8 @@ import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface SimpleEventMapper {
 
@@ -19,7 +21,7 @@ public interface SimpleEventMapper {
     @InheritInverseConfiguration
     SimpleEntity eventToEntity(SimpleEntitySynchronisationEvent event);
 
-    Iterable<SimpleEntity> eventsToEntities(Iterable<SimpleEntitySynchronisationEvent> events);
+    List<SimpleEntity> eventsToEntities(List<SimpleEntitySynchronisationEvent> events);
 
     Iterable<SimpleEntitySynchronisationEvent> entitiesToEvents(Iterable<SimpleEntity> entities);
 }

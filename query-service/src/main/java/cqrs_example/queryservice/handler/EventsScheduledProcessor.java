@@ -31,12 +31,7 @@ public class EventsScheduledProcessor {
      */
     public void start() {
         log.info("Start EventsScheduledProcessor {}", LocalDateTime.now().format(dateTimeFormatter));
-
-        Runnable scheduledTask = () -> {
-            updateQueryServiceDatabase();
-        };
-
-        scheduler.scheduleAtFixedRate(scheduledTask, 0, 1, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(this::updateQueryServiceDatabase, 1, 5, TimeUnit.MINUTES);
     }
 
     /**
@@ -44,15 +39,18 @@ public class EventsScheduledProcessor {
      * в буфере EventsBuffer, после чего вызываем метод 'getAndClearBuffer' и очищаем буфер,
      * забирая ивенты и обновляя базу данных.
      */
+
+    //TODO refactor Где-то здесь косяк: Данные уходят, буфер очищается, но данные не записываются
     private void updateQueryServiceDatabase() {
         List<SimpleEntitySynchronisationEvent> events = EventsBuffer.getAndClearBuffer();
+        if (events.isEmpty()) {
+            log.info("No events in buffer, Count: {}", count);
+            return;
+        }
+
         count++;
         log.info("Count: {}, ListSize: {}, dateTime: {}", count, events.size(), LocalDateTime.now().format(dateTimeFormatter));
-        if (!events.isEmpty()) {
-            queryService.saveAllProcessedEntityEvents(events);
-            log.info("Update QueryService database");
-        } else {
-            log.info("No events in buffer, Count: {}", count);
-        }
+        queryService.saveAllProcessedEntityEvents(events);
+        log.info("Update QueryService database");
     }
 }

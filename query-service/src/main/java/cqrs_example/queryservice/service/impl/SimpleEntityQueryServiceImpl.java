@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class SimpleEntityQueryServiceImpl implements SimpleEntityQueryService {
@@ -17,7 +19,7 @@ public class SimpleEntityQueryServiceImpl implements SimpleEntityQueryService {
 
     @Override
     @Transactional
-    public void saveAllProcessedEntityEvents(Iterable<SimpleEntitySynchronisationEvent> events) {
+    public void saveAllProcessedEntityEvents(List<SimpleEntitySynchronisationEvent> events) {
         repository.saveAll(mapper.eventsToEntities(events));
 
     }
