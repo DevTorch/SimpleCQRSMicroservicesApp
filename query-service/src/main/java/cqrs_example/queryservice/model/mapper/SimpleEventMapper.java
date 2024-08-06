@@ -18,4 +18,8 @@ public interface SimpleEventMapper {
 
     @InheritInverseConfiguration
     SimpleEntity eventToEntity(SimpleEntitySynchronisationEvent event);
+
+    Iterable<SimpleEntity> eventsToEntities(Iterable<SimpleEntitySynchronisationEvent> events);
+
+    Iterable<SimpleEntitySynchronisationEvent> entitiesToEvents(Iterable<SimpleEntity> entities);
 }

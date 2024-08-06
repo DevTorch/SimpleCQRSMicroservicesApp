@@ -3,14 +3,13 @@ package cqrs_example.queryservice.model.entity;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,9 +29,10 @@ import java.util.Objects;
 @ToString
 @Entity
 @Cacheable
+@Builder
 public class SimpleEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @NotNull
     private Long id;
 
     @NotEmpty(message = "Full Name is required")
@@ -54,13 +54,6 @@ public class SimpleEntity {
 
     @Version
     private int version;
-
-    @Builder
-    public SimpleEntity(String fullName, String email, String description) {
-        this.fullName = fullName;
-        this.email = email;
-        this.description = description;
-    }
 
     @PrePersist
     public void onCreate() {

@@ -50,9 +50,9 @@ public class CommandKafkaProducerConfig {
     @Bean
     NewTopic createQueryUpdateTopic() {
         return TopicBuilder.name(CqrsCoreConstants.CQRS_EVENTS_TOPIC)
-                .partitions(3)
+                .partitions(1)
                 .replicas(2) //1 leader, 2 followers
-                .configs(Map.of("min.insync.replicas", "2")) //2 servers is synchronized
+                .configs(Map.of("min.insync.replicas", "1")) //1 servers is synchronized
                 .compact()
                 .build();
     }
