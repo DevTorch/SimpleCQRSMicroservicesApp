@@ -8,11 +8,11 @@ import java.util.List;
 
 public interface SimpleEntityService {
 
-    SimpleEntityTransferModelDTO delete(Long id);
-
-    void update(Long id, SimpleEntityTransferModelDTO entityRequestDTO);
-
     SimpleEntityTransferModelDTO create(SimpleEntityTransferModelDTO dto);
+
+    List<SimpleEntityTransferModelDTO> createMany(List<SimpleEntityTransferModelDTO> dtos);
+
+    SimpleEntityTransferModelDTO delete(Long id);
 
     SimpleEntityTransferModelDTO patch(Long id, JsonNode patchNode) throws IOException;
 

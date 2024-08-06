@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -46,6 +45,38 @@ public class SimpleEntityServiceImplementation implements SimpleEntityService {
 
     @Override
     @Transactional
+    public List<SimpleEntityTransferModelDTO> createMany(List<SimpleEntityTransferModelDTO> dtos) {
+
+        //Create Producer Records for List items and send it to KafkaTemplate
+        List<SimpleEntity> entities = repository.saveAll(simpleMapper.toEntities(dtos));
+
+        log.info("Created {} entities. Last entity id: {}", entities.size(), entities.get(entities.size() - 1).getId());
+
+        List<SimpleEntitySynchronisationEvent> events = entities.stream().map(eventMapper::entityToEvent).toList();
+
+        List<ProducerRecord<String, Object>> producerRecords = events.stream().map(this::createProducerRecord).toList();
+        CompletableFuture.allOf(producerRecords.stream().map(kafkaTemplate::send).toArray(CompletableFuture[]::new)).join();
+
+        return simpleMapper.toDTOs(entities);
+    }
+
+    private ProducerRecord<String, Object> createProducerRecord(SimpleEntitySynchronisationEvent event) {
+        ProducerRecord<String, Object> batchRecord = new ProducerRecord<>(
+                CqrsCoreConstants.CQRS_EVENTS_TOPIC,
+                String.valueOf(event.id()),
+                event);
+
+        batchRecord.headers()
+                .add("messageId", UUID.randomUUID().toString().getBytes())
+                .add("messageKey", event.id().toString().getBytes())
+                .add("eventType", EventTypeEnum.CREATE.toString().getBytes());
+
+        return batchRecord;
+    }
+
+    @Override
+    @Transactional
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public SimpleEntityTransferModelDTO create(SimpleEntityTransferModelDTO dto) {
         SimpleEntity savedEntity = repository.save(simpleMapper.toEntity(dto));
         SimpleEntitySynchronisationEvent event = eventMapper.entityToEvent(savedEntity);
@@ -90,7 +121,7 @@ public class SimpleEntityServiceImplementation implements SimpleEntityService {
         throw new SimpleEntityNotFoundException();
     }
 
-    @Override
+    /*@Override
     public void update(Long id, SimpleEntityTransferModelDTO entityRequestDTO) {
         var entity = repository.findById(id).orElseThrow(
                 () -> new SimpleEntityNotFoundException(String.format("Filed to update entity with id: %d", id)));
@@ -98,7 +129,7 @@ public class SimpleEntityServiceImplementation implements SimpleEntityService {
         entity.setFullName(entityRequestDTO.fullName());
         entity.setDescription(String.format("Last Update: %s", Instant.now().toString()));
         repository.save(entity);
-    }
+    }*/
 
     @Override
     @Transactional

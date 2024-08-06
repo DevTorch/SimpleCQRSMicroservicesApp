@@ -32,6 +32,12 @@ public class SimpleEntityRestController {
         return simpleEntityService.create(dto);
     }
 
+    @PostMapping("/many")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<SimpleEntityTransferModelDTO> createMany(@RequestBody @Valid List<SimpleEntityTransferModelDTO> dtos) {
+        return simpleEntityService.createMany(dtos);
+    }
+
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public SimpleEntityTransferModelDTO patch(@PathVariable Long id, @RequestBody JsonNode patchNode) throws IOException {
