@@ -17,12 +17,6 @@ public class SimpleEntityQueryServiceImpl implements SimpleEntityQueryService {
 
     @Override
     @Transactional
-    public void saveProcessedEntityEvents(SimpleEntitySynchronisationEvent event) {
-        repository.save(mapper.eventToEntity(event));
-    }
-
-    @Override
-    @Transactional
     public void saveAllProcessedEntityEvents(Iterable<SimpleEntitySynchronisationEvent> events) {
         repository.saveAll(mapper.eventsToEntities(events));
 

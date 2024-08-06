@@ -32,7 +32,6 @@ public class SynchronizationEventHandler {
             @Header(name = "eventType") String eventType) {
 
         //Проверяем сообщение по messageId на существование. Если нет, то сохраняем в БД
-
         var storedMessagesEvent = storageService.findByMessageId(messageId);
 
         if (storedMessagesEvent.isPresent()) {
@@ -50,7 +49,7 @@ public class SynchronizationEventHandler {
 
         log.info("Received event: {}, messageId: {}, messageKey: {}, eventType: {}, event: {}", event, messageId, messageKey, eventType, event);
 
-        //TODO Логика сохранения нового события в БД
-        /* Формируем буферный класс события, собираем там ивенты и готовим к обработке */
+        //Формируем буферный класс событий, собираем там ивенты и готовим к обработке
+        EventsBuffer.addToBuffer(event);
     }
 }
