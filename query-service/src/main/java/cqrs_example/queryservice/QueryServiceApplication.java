@@ -12,6 +12,7 @@ public class QueryServiceApplication {
 
 		EventsScheduledProcessor processor = new EventsScheduledProcessor();
 		processor.start();
+
 	}
 
 }

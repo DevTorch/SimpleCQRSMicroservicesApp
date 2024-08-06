@@ -70,7 +70,7 @@ public class SimpleEntityServiceImplementation implements SimpleEntityService {
                 .add("messageId", UUID.randomUUID().toString().getBytes())
                 .add("messageKey", event.id().toString().getBytes())
                 .add("eventType", EventTypeEnum.CREATE.toString().getBytes());
-
+        log.info("Created ProducerRecords");
         return batchRecord;
     }
 

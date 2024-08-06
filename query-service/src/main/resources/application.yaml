@@ -9,7 +9,7 @@ spring:
     import: optional:file:.env[.properties]
 
   liquibase:
-    enabled: true
+    enabled: false
     change-log: classpath:/db/changelog/db.changelog-master.yaml
 
   datasource:
@@ -21,7 +21,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
@@ -30,12 +30,7 @@ spring:
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-
   kafka:
     consumer:
-      group-id: cqrs-consumer-group
-    bootstrap-servers:
-      - localhost:9092
-      - localhost:9094
-      - localhost:9096
+      bootstrap-servers: localhost:9092,localhost:9094,localhost:9096
 

@@ -22,7 +22,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "processed__messages_events")
+@Table(name = "processed_messages_events")
 public class ProcessedMessagesEvent {
 
     @Id

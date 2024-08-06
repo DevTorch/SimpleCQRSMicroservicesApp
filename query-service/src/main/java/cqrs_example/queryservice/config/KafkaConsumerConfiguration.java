@@ -1,7 +1,9 @@
 package cqrs_example.queryservice.config;
 
+import cqrs_example.kafkacore.constants.CqrsCoreConstants;
 import cqrs_example.queryservice.exception.NonRetryableException;
 import cqrs_example.queryservice.exception.RetryableException;
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -27,16 +29,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@RequiredArgsConstructor
 public class KafkaConsumerConfiguration {
 
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
 
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, environment.getProperty("spring.kafka.consumer.bootstrap-servers"));
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, environment.getProperty("spring.kafka.consumer.group-id"));
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, CqrsCoreConstants.GROUP_ID);
 
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class);
