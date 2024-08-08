@@ -1,6 +1,17 @@
+# Basic CQRS Pattern Implementation in Java
+
+Реализация базовой концепции CQRS-паттерна. В текущей версси реализовано добавление записей в базу данных.
+Через REST API CommandService добавляем новые записи по одной или пачкой, producer Kafka 
+в асинхронном режиме отправляет события в топик, consumer в QueryService читает события из топика,
+складывает в EventBuffer и по Scheduler'у выполняет обработку событий с записью в базу данных.
+
+На стороне  QueryService реализована идемпотентность consumer. В RestController сервиса чтения
+реализовано API чтения записей из базы данных. С пагинацией и без. В обоих сервисах заложена основа 
+для обновления и удаления записей. Остается только реализовать создание событий на каждое действие.
+
 ## Tools:
 - MapStruct
-- Kafka
+- Apache Kafka
 - PostgreSQL
 - Liquibase
-- Caffeine Cache
+- DockerCompose

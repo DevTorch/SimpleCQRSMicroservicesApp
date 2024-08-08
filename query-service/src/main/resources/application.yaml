@@ -19,13 +19,13 @@ spring:
     password: ${QUERY_SERVICE_DB_PASSWORD}
 
   jpa:
-    show-sql: true
+#    show-sql: true
     hibernate:
       ddl-auto: none
     properties:
       hibernate:
         format_sql: true
-        show_sql: true
+#        show_sql: true
         highlight_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -34,11 +34,8 @@ spring:
     consumer:
       bootstrap-servers: localhost:9092,localhost:9094,localhost:9096
       auto-offset-reset: earliest
-      heartbeat-interval: 5000
+      heartbeat-interval-ms: 3000
       properties:
         session.timeout.ms: 30000
         enable.auto.commit: false
         auto.create.topics.enable: false
-
-
-

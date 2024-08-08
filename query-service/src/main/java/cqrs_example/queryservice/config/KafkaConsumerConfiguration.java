@@ -8,7 +8,6 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -46,12 +45,9 @@ public class KafkaConsumerConfiguration {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class);
 
-//        props.put((JsonDeserializer.TYPE_MAPPINGS), CustomerCreateRequestEvent.class.getCanonicalName() + ":springcloudms.customerservice.events.CustomerCreateRequestEvent");
-//        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, CustomerCreateRequestEvent.class.getCanonicalName());
-//        props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
-
-//        props.put(JsonDeserializer.TRUSTED_PACKAGES, "springcloudms.*");
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "cqrs_example.*");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, environment.getProperty("spring.kafka.consumer.auto-offset-reset"));
+        props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, environment.getProperty("spring.kafka.consumer.heartbeat-interval-ms"));
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
@@ -71,6 +67,7 @@ public class KafkaConsumerConfiguration {
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(customerConsumerFactory);
         factory.setCommonErrorHandler(errorHandler);
+        factory.getContainerProperties().setIdleBetweenPolls(60_000L);
 
         return factory;
     }

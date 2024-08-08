@@ -47,9 +47,8 @@ public class SynchronizationEventHandler {
                 event.toString(),
                 LocalDateTime.now()));
 
-        log.info("Received event: {}, messageId: {}, messageKey: {}, eventType: {}, event: {}", event, messageId, messageKey, eventType, event);
-
         //Формируем буферный класс событий, собираем там ивенты и готовим к обработке
         EventsBuffer.addToBuffer(event);
     }
+
 }

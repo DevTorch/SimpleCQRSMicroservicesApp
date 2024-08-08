@@ -3,8 +3,6 @@ package cqrs_example.queryservice.handler;
 import cqrs_example.kafkacore.events.SimpleEntitySynchronisationEvent;
 import cqrs_example.queryservice.service.SimpleEntityQueryService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,43 +12,38 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-@Component
 public class EventsScheduledProcessor {
 
-    @Autowired
     private SimpleEntityQueryService queryService;
-
     private static int count = 0;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
     /**
-     * Запускаем ScheduledTask по расписанию для обновления базы данных.
-     * Задача запускается каждые 5 минут и вызывает метод `updateQueryServiceDatabase`.
+     * Starts the EventsScheduledProcessor, which schedules a task to run every 5 minutes.
+     * The task retrieves events from the EventsBuffer, saves them to the QueryService database,
+     * and logs the count of events and the current time. If the buffer is empty, it only logs
+     * the count.
      */
     public void start() {
         log.info("Start EventsScheduledProcessor {}", LocalDateTime.now().format(dateTimeFormatter));
-        scheduler.scheduleAtFixedRate(this::updateQueryServiceDatabase, 1, 5, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(() -> {
+            List<SimpleEntitySynchronisationEvent> events = EventsBuffer.getAndClearBuffer();
+            if (events.isEmpty()) {
+                count++;
+                log.info("Just Count in empty buffer: {}, dateTime: {}", count, LocalDateTime.now().format(dateTimeFormatter));
+                return;
+            }
+            queryService.saveAllProcessedEntityEvents(events);
+            log.info("Thread Circle Count: {}, ListSize: {}, dateTime: {}", ++count, events.size(), LocalDateTime.now().format(dateTimeFormatter));
+            log.info("Update QueryService database");
+        }, 1, 5, TimeUnit.MINUTES);
     }
-
-    /**
-     * Синхронизируем базу данных QueryService с базой данных CommonService, собирая события Kafka
-     * в буфере EventsBuffer, после чего вызываем метод 'getAndClearBuffer' и очищаем буфер,
-     * забирая ивенты и обновляя базу данных.
-     */
-
-    //TODO refactor Где-то здесь косяк: Данные уходят, буфер очищается, но данные не записываются
-    private void updateQueryServiceDatabase() {
-        List<SimpleEntitySynchronisationEvent> events = EventsBuffer.getAndClearBuffer();
-        if (events.isEmpty()) {
-            log.info("No events in buffer, Count: {}", count);
-            return;
-        }
-
-        count++;
-        log.info("Count: {}, ListSize: {}, dateTime: {}", count, events.size(), LocalDateTime.now().format(dateTimeFormatter));
-        queryService.saveAllProcessedEntityEvents(events);
-        log.info("Update QueryService database");
+    public void setEntityService(SimpleEntityQueryService queryService) {
+        this.queryService = queryService;
     }
 }
+
+
+

@@ -29,9 +29,6 @@ public class CommandKafkaProducerConfig {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, env.getProperty("spring.kafka.producer.bootstrap-servers"));
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        //TODO Разобраться с классами ивентов
-//        props.put(JsonSerializer.TYPE_MAPPINGS, CustomerCreateRequestEvent.class.getCanonicalName() + ":springcloudms.authservice.dto.customer.CustomerCreateRequestEvent, "
-//                                                + OrderAccountCreateRequestEvent.class.getCanonicalName() + ":springcloudms.authservice.dto.order.OrderAccountCreateRequestEvent");
         props.put(ProducerConfig.ACKS_CONFIG, env.getProperty("spring.kafka.producer.acks"));
         props.put(ProducerConfig.LINGER_MS_CONFIG, env.getProperty("spring.kafka.producer.properties.linger.ms"));
         props.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, env.getProperty("spring.kafka.producer.properties.delivery.timeout.ms"));
@@ -50,9 +47,9 @@ public class CommandKafkaProducerConfig {
     @Bean
     NewTopic createQueryUpdateTopic() {
         return TopicBuilder.name(CqrsCoreConstants.CQRS_EVENTS_TOPIC)
-                .partitions(1)
+                .partitions(3)
                 .replicas(2) //1 leader, 2 followers
-                .configs(Map.of("min.insync.replicas", "1")) //1 servers is synchronized
+                .configs(Map.of("min.insync.replicas", "2")) //1 servers is synchronized
                 .compact()
                 .build();
     }

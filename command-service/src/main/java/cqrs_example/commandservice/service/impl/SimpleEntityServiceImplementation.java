@@ -121,16 +121,6 @@ public class SimpleEntityServiceImplementation implements SimpleEntityService {
         throw new SimpleEntityNotFoundException();
     }
 
-    /*@Override
-    public void update(Long id, SimpleEntityTransferModelDTO entityRequestDTO) {
-        var entity = repository.findById(id).orElseThrow(
-                () -> new SimpleEntityNotFoundException(String.format("Filed to update entity with id: %d", id)));
-        entity.setEmail(entityRequestDTO.email());
-        entity.setFullName(entityRequestDTO.fullName());
-        entity.setDescription(String.format("Last Update: %s", Instant.now().toString()));
-        repository.save(entity);
-    }*/
-
     @Override
     @Transactional
     public SimpleEntityTransferModelDTO patch(Long id, JsonNode patchNode) throws IOException {

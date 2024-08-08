@@ -1,8 +1,6 @@
 package cqrs_example.commandservice.config;
 
 import cqrs_example.commandservice.model.dto.SimpleEntityTransferModelDTO;
-import cqrs_example.commandservice.model.mapper.SimpleMapper;
-import cqrs_example.commandservice.repository.SimpleEntityCommandRepository;
 import cqrs_example.commandservice.service.SimpleEntityService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AppEntityInitializer {
 
     private final SimpleEntityService simpleEntityService;
-    private final SimpleMapper simpleMapper;
 
     @Transactional
     @PostConstruct
@@ -27,8 +24,5 @@ public class AppEntityInitializer {
         simpleEntityService.create(entityRequestDTOTwo);
         simpleEntityService.create(entityRequestDTOThree);
 
-//        repository.save(simpleMapper.toEntity(entityRequestDTOOne));
-//        repository.save(simpleMapper.toEntity(entityRequestDTOTwo));
-//        repository.save(simpleMapper.toEntity(entityRequestDTOThree));
     }
 }

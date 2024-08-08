@@ -31,5 +31,5 @@ public interface SimpleMapper {
     List<SimpleEntity> toEntities(List<SimpleEntityTransferModelDTO> dtos);
 
     @InheritConfiguration(name = "toEntity")
-    SimpleEntity updateWithNull(SimpleEntityTransferModelDTO simpleEntityTransferModelDTO, @MappingTarget SimpleEntity simpleEntity);
+    void updateWithNull(SimpleEntityTransferModelDTO simpleEntityTransferModelDTO, @MappingTarget SimpleEntity simpleEntity);
 }
